@@ -1,2 +1,2 @@
-# spring-cloud-sso-samples
-OAuth2 login for spring cloud samples
+# spring-security-oauth2
+OAuth2 login for spring security samples
