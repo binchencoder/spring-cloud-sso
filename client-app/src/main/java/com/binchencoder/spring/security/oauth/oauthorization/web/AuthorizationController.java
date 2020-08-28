@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.binchencoder.spring.security.oauth.samples.web;
+package com.binchencoder.spring.security.oauth.oauthorization.web;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -36,7 +36,6 @@ public class AuthorizationController {
 
 	@Autowired
 	private WebClient webClient;
-
 
 	@GetMapping(value = "/authorize", params = "grant_type=authorization_code")
 	public String authorization_code_grant(Model model) {

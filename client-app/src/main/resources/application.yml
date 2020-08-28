@@ -38,8 +38,8 @@ spring:
             scope: message.read,message.write
         provider:
           keycloak:
-            authorization-uri: http://auth-server:8090/auth/realms/oauth2-sample/protocol/openid-connect/auth
-            token-uri: http://auth-server:8090/auth/realms/oauth2-sample/protocol/openid-connect/token
+            authorization-uri: http://auth-server:8090/oauth/authorize
+            token-uri: http://auth-server:8090/oauth/token
 
 messages:
   base-uri: http://localhost:8092/messages
