@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.binchencoder.spring.security.oauth.authorization;
+package com.binchencoder.spring.authorization;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -22,9 +22,9 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  * @author binchencoder
  */
 @SpringBootApplication
-public class AuthorizationServerApplication {
+public class OAuth2AuthorizationServerApplication {
 
   public static void main(String[] args) {
-    SpringApplication.run(AuthorizationServerApplication.class, args);
+    SpringApplication.run(OAuth2AuthorizationServerApplication.class, args);
   }
 }

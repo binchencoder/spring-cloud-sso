@@ -1,4 +1,4 @@
-package com.binchencoder.spring.security.oauth.oauthorization.config;
+package com.binchencoder.spring.security.oauth.authorization.config;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;

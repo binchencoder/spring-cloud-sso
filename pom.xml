@@ -18,6 +18,7 @@
 <!--		<module>spring-security-oauth2-authorization-server</module>-->
 		<module>authorization-server</module>
 		<module>client-app</module>
+		<module>oauth2-login</module>
 		<module>resource-server</module>
 	</modules>
 
@@ -30,7 +31,7 @@
 			<dependency>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-dependencies</artifactId>
-				<version>2.2.1.RELEASE</version>
+				<version>2.3.2.RELEASE</version>
 			</dependency>
 		</dependencies>
 	</dependencyManagement>

@@ -13,18 +13,36 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.binchencoder.spring.security.oauth.authorization;
+package com.binchencoder.spring.security.oauth.authorization.web;
 
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
 
 /**
  * @author binchencoder
  */
-@SpringBootApplication
-public class AuthorizationServerApplication {
+@Controller
+public class DefaultController {
 
-  public static void main(String[] args) {
-    SpringApplication.run(AuthorizationServerApplication.class, args);
-  }
+	@GetMapping("/")
+	public String root() {
+		return "redirect:/index";
+	}
+
+	@GetMapping("/index")
+	public String index() {
+		return "index";
+	}
+
+	@GetMapping("/login")
+	public String login() {
+		return "login";
+	}
+
+	@GetMapping("/login-error")
+	public String loginError(Model model) {
+		model.addAttribute("loginError", true);
+		return login();
+	}
 }

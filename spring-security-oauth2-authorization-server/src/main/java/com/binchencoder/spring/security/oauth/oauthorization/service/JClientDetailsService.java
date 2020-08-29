@@ -1,4 +1,4 @@
-package com.binchencoder.spring.security.oauth.oauthorization.service;
+package com.binchencoder.spring.security.oauth.authorization.service;
 
 import org.springframework.security.oauth2.provider.ClientDetails;
 import org.springframework.security.oauth2.provider.ClientDetailsService;
