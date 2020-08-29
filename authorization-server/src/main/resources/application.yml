@@ -1,22 +1,11 @@
 server:
-  port: 8090
+  port: 9000
 
 logging:
   level:
     root: DEBUG
-    com.binchencoder.spring.security: INFO
+    com.binchencoder.spring: INFO
     org.springframework.web: INFO
     org.springframework.security: INFO
     org.springframework.security.oauth2: INFO
     org.springframework.boot.autoconfigure: DEBUG
-
-spring:
-  security:
-    oauth2:
-      client:
-        registration:
-          messaging-client-auth-code:
-            client-id: messaging-client
-            client-secret: secret
-            authorization-grant-type: authorization_code
-            redirect-uri: "http://localhost:8080/authorized"

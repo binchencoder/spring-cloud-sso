@@ -1,5 +1,5 @@
 server:
-  port: 8092
+  port: 8090
 
 logging:
   level:
@@ -13,6 +13,10 @@ logging:
 spring:
   security:
     oauth2:
-      resourceserver:
-        jwt:
-          jwk-set-uri: http://auth-server:9000/oauth2/jwks
+      client:
+        registration:
+          messaging-client-auth-code:
+            client-id: messaging-client
+            client-secret: secret
+            authorization-grant-type: authorization_code
+            redirect-uri: "http://localhost:8080/authorized"

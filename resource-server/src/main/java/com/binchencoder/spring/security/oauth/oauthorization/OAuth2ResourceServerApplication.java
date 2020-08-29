@@ -22,9 +22,9 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  * @author binchencoder
  */
 @SpringBootApplication
-public class ResourceServerApplication {
+public class OAuth2ResourceServerApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(ResourceServerApplication.class, args);
+		SpringApplication.run(OAuth2ResourceServerApplication.class, args);
 	}
 }
