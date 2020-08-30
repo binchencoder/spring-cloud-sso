@@ -8,6 +8,11 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.oauth2.client.InMemoryOAuth2AuthorizedClientService;
+import org.springframework.security.oauth2.client.OAuth2AuthorizedClientService;
+import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
+import org.springframework.security.oauth2.client.web.AuthenticatedPrincipalOAuth2AuthorizedClientRepository;
+import org.springframework.security.oauth2.client.web.OAuth2AuthorizedClientRepository;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.OrRequestMatcher;
 import org.springframework.util.StringUtils;
@@ -16,6 +21,18 @@ import org.springframework.util.StringUtils;
 public class Configurations {
 
   public static final String REQUEST_STATUS_METRICS_FILTER_BEAN_NAME = "requestStatusMetricsFilter";
+
+//  @Bean
+//  public OAuth2AuthorizedClientService authorizedClientService(
+//      ClientRegistrationRepository clientRegistrationRepository) {
+//    return new InMemoryOAuth2AuthorizedClientService(clientRegistrationRepository);
+//  }
+//
+//  @Bean
+//  public OAuth2AuthorizedClientRepository authorizedClientRepository(
+//      OAuth2AuthorizedClientService authorizedClientService) {
+//    return new AuthenticatedPrincipalOAuth2AuthorizedClientRepository(authorizedClientService);
+//  }
 
   /* 认证端点 & 认证失败处理器 */
   @Bean

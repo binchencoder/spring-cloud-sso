@@ -54,7 +54,7 @@ public class JAuthenticationEntryPoint
   @Override
   public void commence(HttpServletRequest request, HttpServletResponse response,
       AuthenticationException authException) throws IOException, ServletException {
-    LOGGER.error("commence authenticationException", authException);
+    LOGGER.debug("commence authenticationException", authException);
 
     // 账号停用、冻结、公司停用 等情况。 需要清理当前的 Cookie，防止进入无限循环提示。
 //    Cookie cookie = AccessTokenRepresentSecurityContextRepository

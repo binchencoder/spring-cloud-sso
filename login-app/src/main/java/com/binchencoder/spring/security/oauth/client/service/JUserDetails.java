@@ -5,11 +5,10 @@ import java.util.Collections;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-@SuppressWarnings("serial")
 public class JUserDetails implements UserDetails {
 
-  private long uid;
-  private long cid;
+  private long userID;
+  private long companyID;
   private boolean disable; // 帐号不可用
   private boolean locked; // 公司被停用
   private String password;
@@ -18,39 +17,39 @@ public class JUserDetails implements UserDetails {
   public JUserDetails() {
   }
 
-  public JUserDetails(long uid, long cid, String password) {
-    this.uid = uid;
-    this.cid = cid;
+  public JUserDetails(long userID, long companyID, String password) {
+    this.userID = userID;
+    this.companyID = companyID;
     this.password = password;
   }
 
-  public JUserDetails(long uid, long cid, String password, String alias) {
-    this(uid, cid, password);
+  public JUserDetails(long userID, long companyID, String password, String alias) {
+    this(userID, companyID, password);
     this.alias = alias;
   }
 
-  public void setUid(long uid) {
-    this.uid = uid;
+  public void setUserID(long userID) {
+    this.userID = userID;
   }
 
-  public void setCid(long cid) {
-    this.cid = cid;
+  public void setCompanyID(long companyID) {
+    this.companyID = companyID;
   }
 
   public void setPassword(String password) {
     this.password = password;
   }
 
-  public long getUid() {
-    return uid;
+  public long getUserID() {
+    return userID;
   }
 
-  public long getCid() {
-    return cid;
+  public long getCompanyID() {
+    return companyID;
   }
 
   public String getJid() {
-    return uid + "@" + cid;
+    return userID + "@" + companyID;
   }
 
   public String getAlias() {
@@ -73,7 +72,7 @@ public class JUserDetails implements UserDetails {
 
   @Override
   public String getUsername() {
-    return String.valueOf(uid);
+    return String.valueOf(userID);
   }
 
   @Override

@@ -18,28 +18,33 @@ spring:
       client:
         registration:
           messaging-client-auth-code:
-            provider: spring
+            provider: oauthserver
             client-id: messaging-client
             client-secret: secret
             authorization-grant-type: authorization_code
             redirect-uri: "{baseUrl}/authorized"
             scope: message.read,message.write
           messaging-client-client-creds:
-            provider: spring
+            provider: oauthserver
             client-id: messaging-client
             client-secret: secret
             authorization-grant-type: client_credentials
             scope: message.read,message.write
           messaging-client-password:
-            provider: spring
+            provider: oauthserver
             client-id: messaging-client
             client-secret: secret
             authorization-grant-type: password
             scope: message.read,message.write
         provider:
-          spring:
+          oauthserver:
+            # 获取CODE
             authorization-uri: http://auth-server:9000/oauth2/authorize
+            # 获取TOKEN
             token-uri: http://auth-server:9000/oauth2/token
+            # 刷新TOKEN
+            # user-info-uri: http://localhost:9000/oauth2/profile
+            user-name-attribute: id
 
 messages:
   base-uri: http://localhost:8092/messages

@@ -15,7 +15,7 @@
  */
 package com.binchencoder.spring.security.oauth.client.web;
 
-import static org.springframework.security.oauth2.client.web.reactive.function.client.ServletOAuth2AuthorizedClientExchangeFilterFunction.clientRegistrationId;
+import static org.springframework.security.oauth2.client.web.reactive.function.client.ServletOAuth2AuthorizedClientExchangeFilterFunction.oauth2AuthorizedClient;
 
 import com.binchencoder.spring.security.oauth.client.exception.AnotherUserLoginedAccessDeniedException;
 import com.binchencoder.spring.security.oauth.client.route.Routes;
@@ -35,13 +35,19 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
+import org.springframework.security.oauth2.client.OAuth2AuthorizedClientService;
+import org.springframework.security.oauth2.client.annotation.RegisteredOAuth2AuthorizedClient;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.WebAttributes;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.reactive.function.client.WebClient;
 
@@ -65,7 +71,41 @@ public class AuthorizationController {
   private AuthenticationFailureCountingService authenticationFailureCountingService;
 
   @Autowired
+  private OAuth2AuthorizedClientService authorizedClientService;
+
+  @Autowired
   private WebClient webClient;
+
+  @RequestMapping({Routes.OAUTH_LOGIN, Routes.OAUTH_FAILURE_HTML})
+  public String getOAuthLogin(HttpServletRequest request, HttpServletResponse response,
+      @RequestParam(required = false) String display,
+      @RequestParam(required = false) String client_id,
+      @RequestParam(required = false, defaultValue = "0") long uid,
+      @RequestParam(required = false) String redirect_uri, Model model) {
+    if (!"relogin".equals(display) && !"mobile".equals(display) && !"dialog".equals(display)
+        && !"sns".equals(display) && !"college".equals(display)) {
+      display = "default";
+    }
+    if ("college".equals(display)) {
+      model.addAttribute("collegeRegisterUrl",
+          redirect_uri.substring(0, redirect_uri.indexOf("security")) + "security/register");
+    }
+    model.addAttribute("showIdentifyCode",
+        authenticationFailureCountingService.isNeedCheckIdentifyCode(request, response));
+    if (uid != 0) {
+      model.addAttribute("uid", uid);
+    }
+
+    AuthenticationException exception =
+        (AuthenticationException) request.getAttribute(WebAttributes.AUTHENTICATION_EXCEPTION);
+    String errorMsg = getErrorMsg(exception);
+    if (errorMsg != null) {
+      model.addAttribute("error", errorMsg);
+    }
+
+//    return Routes.LOGIN_URL + display;
+    return Routes.LOGIN_URL;
+  }
 
   @RequestMapping(Routes.OAUTH_FAILURE)
   @ResponseBody
@@ -145,39 +185,45 @@ public class AuthorizationController {
     return ret;
   }
 
-  @GetMapping(value = "/authorize", params = "grant_type=authorization_code")
-  public String authorization_code_grant(Model model) {
-    String[] messages = retrieveMessages("messaging-client-auth-code");
+  @GetMapping("/authorized")    // registered redirect_uri for authorization_code
+  public String authorized(Model model,
+      @RegisteredOAuth2AuthorizedClient("messaging-client-auth-code") OAuth2AuthorizedClient authorizedClient,
+      @AuthenticationPrincipal OAuth2User oauth2User) {
+    String[] messages = retrieveMessages(authorizedClient);
     model.addAttribute("messages", messages);
     return "index";
   }
 
-  @GetMapping("/authorized")    // registered redirect_uri for authorization_code
-  public String authorized(Model model) {
-    String[] messages = retrieveMessages("messaging-client-auth-code");
+  @GetMapping(value = "/authorize", params = "grant_type=authorization_code")
+  public String authorization_code_grant(Model model,
+      @RegisteredOAuth2AuthorizedClient("messaging-client-auth-code") OAuth2AuthorizedClient authorizedClient) {
+    String[] messages = retrieveMessages(authorizedClient);
     model.addAttribute("messages", messages);
     return "index";
   }
 
   @GetMapping(value = "/authorize", params = "grant_type=client_credentials")
-  public String client_credentials_grant(Model model) {
-    String[] messages = retrieveMessages("messaging-client-client-creds");
+  public String client_credentials_grant(Model model,
+      @RegisteredOAuth2AuthorizedClient("messaging-client-client-creds") OAuth2AuthorizedClient authorizedClient) {
+    String[] messages = retrieveMessages(authorizedClient);
     model.addAttribute("messages", messages);
     return "index";
   }
 
   @PostMapping(value = "/authorize", params = "grant_type=password")
-  public String password_grant(Model model) {
-    String[] messages = retrieveMessages("messaging-client-password");
+  public String password_grant(Model model,
+      @RegisteredOAuth2AuthorizedClient("messaging-client-password") OAuth2AuthorizedClient authorizedClient) {
+    String[] messages = retrieveMessages(authorizedClient);
     model.addAttribute("messages", messages);
     return "index";
   }
 
-  private String[] retrieveMessages(String clientRegistrationId) {
+  private String[] retrieveMessages(OAuth2AuthorizedClient authorizedClient) {
     return this.webClient
         .get()
         .uri(this.messagesBaseUri)
-        .attributes(clientRegistrationId(clientRegistrationId))
+//        .attributes(clientRegistrationId(clientRegistrationId))
+        .attributes(oauth2AuthorizedClient(authorizedClient))
         .retrieve()
         .bodyToMono(String[].class)
         .block();
@@ -211,7 +257,7 @@ public class AuthorizationController {
     if (userDetails instanceof JUserDetails) {
       JUserDetails details = (JUserDetails) userDetails;
 
-      long id = details.getUid();
+      long id = details.getUserID();
       String alias = details.getAlias();
       if (StringUtils.isBlank(alias)) {
 //        User user = userService.getUserById(id);

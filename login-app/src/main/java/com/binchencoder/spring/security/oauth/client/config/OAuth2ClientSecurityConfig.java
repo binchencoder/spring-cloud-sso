@@ -22,17 +22,22 @@ import com.binchencoder.spring.security.oauth.client.filter.JRequiredUserCheckFi
 import com.binchencoder.spring.security.oauth.client.filter.JUidCidTokenAuthenticationFilter;
 import com.binchencoder.spring.security.oauth.client.filter.JUsernamePasswordAuthenticationFilter;
 import com.binchencoder.spring.security.oauth.client.handler.JAccessDeniedHandler;
+import com.binchencoder.spring.security.oauth.client.handler.JAccessTokenResponseConverter;
 import com.binchencoder.spring.security.oauth.client.handler.JAuthenticationEntryPoint;
+import com.binchencoder.spring.security.oauth.client.handler.JAuthorizationRequestResolver;
+import com.binchencoder.spring.security.oauth.client.handler.JForwardAuthenticationSuccessHandler;
 import com.binchencoder.spring.security.oauth.client.matcher.JUidCidTokenRequestMatcher;
 import com.binchencoder.spring.security.oauth.client.route.Routes;
 import com.binchencoder.spring.security.oauth.client.service.AuthenticationFailureCountingService;
 import com.binchencoder.spring.security.oauth.client.service.JUserDetailsService;
 import com.nimbusds.oauth2.sdk.util.StringUtils;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import javax.servlet.http.Cookie;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
+import org.springframework.http.converter.FormHttpMessageConverter;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.ProviderManager;
@@ -41,7 +46,14 @@ import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.oauth2.client.endpoint.DefaultAuthorizationCodeTokenResponseClient;
+import org.springframework.security.oauth2.client.endpoint.OAuth2AccessTokenResponseClient;
+import org.springframework.security.oauth2.client.endpoint.OAuth2AuthorizationCodeGrantRequest;
+import org.springframework.security.oauth2.client.http.OAuth2ErrorResponseErrorHandler;
+import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
+import org.springframework.security.oauth2.client.web.OAuth2AuthorizationRequestResolver;
 import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
+import org.springframework.security.oauth2.core.http.converter.OAuth2AccessTokenResponseHttpMessageConverter;
 import org.springframework.security.web.access.ExceptionTranslationFilter;
 import org.springframework.security.web.authentication.session.CompositeSessionAuthenticationStrategy;
 import org.springframework.security.web.authentication.session.SessionAuthenticationStrategy;
@@ -50,12 +62,16 @@ import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.NegatedRequestMatcher;
 import org.springframework.security.web.util.matcher.OrRequestMatcher;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.client.RestTemplate;
 
 /**
  * @author binchencoder
  */
 @EnableWebSecurity
-public class SecurityConfig extends WebSecurityConfigurerAdapter {
+public class OAuth2ClientSecurityConfig extends WebSecurityConfigurerAdapter {
+
+  @Autowired
+  private ClientRegistrationRepository clientRegistrationRepository;
 
   @Autowired
   private JAuthenticationEntryPoint jAuthenticationEntryPoint;
@@ -65,27 +81,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
   @Autowired
   private AuthenticationFailureCountingService authenticationFailureCountingService;
-
-  // 表单登录
-  private JUsernamePasswordAuthenticationFilter getJUsernamePasswordAuthenticationFilter(
-      List<SessionAuthenticationStrategy> sessionStrategies) throws Exception {
-    JUsernamePasswordAuthenticationFilter formLogin = new JUsernamePasswordAuthenticationFilter();
-//    JForwardAuthenticationSuccessHandler jForwardAuthenticationSuccessHandler =
-//        new JForwardAuthenticationSuccessHandler();
-//    jForwardAuthenticationSuccessHandler.setKafkaStorageAdapter(kafkaStorageAdapter);
-//    formLogin.setAuthenticationSuccessHandler(jForwardAuthenticationSuccessHandler);
-    formLogin.setAuthenticationFailureCountingService(authenticationFailureCountingService);
-    formLogin.setRequiresAuthenticationRequestMatcher(new OrRequestMatcher(
-        new AntPathRequestMatcher(Routes.DEFAULT, RequestMethod.POST.toString()),
-        new AntPathRequestMatcher(Routes.OAUTH_AUTHORIZE, RequestMethod.POST.toString())));
-    formLogin.setAuthenticationManager(authenticationManagerBean());
-    formLogin.setUsernameParameter(OAuth2ParameterNames.USERNAME);
-    formLogin.setPasswordParameter(OAuth2ParameterNames.PASSWORD);
-    formLogin.setAuthenticationFailureHandler(jAuthenticationEntryPoint);
-    formLogin.setSessionAuthenticationStrategy(
-        new CompositeSessionAuthenticationStrategy(sessionStrategies));
-    return formLogin;
-  }
 
   @Override
   public UserDetailsService userDetailsServiceBean() throws Exception {
@@ -134,13 +129,18 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     // @formatter:off
     http
         .authorizeRequests()
-//        .antMatchers(Routes.DEFAULT, Routes.LOGIN).permitAll()
+        .antMatchers(Routes.DEFAULT, Routes.LOGIN).permitAll()
         .anyRequest().authenticated()
         .and()
         .formLogin()
 //        .loginPage("/login")
 //        .failureUrl("/login-error")
         .permitAll()
+        .and()
+        .oauth2Login()
+        .authorizationEndpoint()
+        .authorizationRequestResolver(jAuthorizationRequestResolver())
+        .and()
         .and()
         .exceptionHandling() // 3. -> 安全异常处理 LogoutFilter 之后，确保所有登录异常纳入异常处理
         .authenticationEntryPoint(jAuthenticationEntryPoint)
@@ -159,7 +159,12 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         // 一键登录 --> 使可以被异常捕获
         .addFilterAfter(getJUidCidTokenAuthenticationFilter(sessionStrategies),
             jUsernamePasswordAuthenticationFilter.getClass())
-        .oauth2Client();
+        .oauth2Client()
+        .authorizationCodeGrant()
+        .accessTokenResponseClient(jAccessTokenResponseClient());
+
+    http.csrf().disable(); // 关跨域保护
+    http.headers().frameOptions().disable();
     // @formatter:on
   }
 
@@ -181,6 +186,47 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 //    return new InMemoryUserDetailsManager(user);
 
     return new JUserDetailsService();
+  }
+
+  private OAuth2AuthorizationRequestResolver jAuthorizationRequestResolver() {
+    return new JAuthorizationRequestResolver(this.clientRegistrationRepository);
+  }
+
+  private OAuth2AccessTokenResponseClient<OAuth2AuthorizationCodeGrantRequest> jAccessTokenResponseClient() {
+    OAuth2AccessTokenResponseHttpMessageConverter tokenResponseHttpMessageConverter =
+        new OAuth2AccessTokenResponseHttpMessageConverter();
+    tokenResponseHttpMessageConverter
+        .setTokenResponseConverter(new JAccessTokenResponseConverter());
+
+    RestTemplate restTemplate = new RestTemplate(Arrays.asList(
+        new FormHttpMessageConverter(), tokenResponseHttpMessageConverter));
+    restTemplate.setErrorHandler(new OAuth2ErrorResponseErrorHandler());
+
+    DefaultAuthorizationCodeTokenResponseClient tokenResponseClient = new DefaultAuthorizationCodeTokenResponseClient();
+    tokenResponseClient.setRestOperations(restTemplate);
+
+    return tokenResponseClient;
+  }
+
+  // 表单登录
+  private JUsernamePasswordAuthenticationFilter getJUsernamePasswordAuthenticationFilter(
+      List<SessionAuthenticationStrategy> sessionStrategies) throws Exception {
+    JUsernamePasswordAuthenticationFilter formLogin = new JUsernamePasswordAuthenticationFilter();
+    JForwardAuthenticationSuccessHandler jForwardAuthenticationSuccessHandler =
+        new JForwardAuthenticationSuccessHandler();
+//    jForwardAuthenticationSuccessHandler.setKafkaStorageAdapter(kafkaStorageAdapter);
+    formLogin.setAuthenticationSuccessHandler(jForwardAuthenticationSuccessHandler);
+    formLogin.setAuthenticationFailureCountingService(authenticationFailureCountingService);
+    formLogin.setRequiresAuthenticationRequestMatcher(new OrRequestMatcher(
+        new AntPathRequestMatcher(Routes.DEFAULT, RequestMethod.POST.toString()),
+        new AntPathRequestMatcher(Routes.OAUTH_AUTHORIZE, RequestMethod.POST.toString())));
+    formLogin.setAuthenticationManager(authenticationManagerBean());
+    formLogin.setUsernameParameter(OAuth2ParameterNames.USERNAME);
+    formLogin.setPasswordParameter(OAuth2ParameterNames.PASSWORD);
+    formLogin.setAuthenticationFailureHandler(jAuthenticationEntryPoint);
+    formLogin.setSessionAuthenticationStrategy(
+        new CompositeSessionAuthenticationStrategy(sessionStrategies));
+    return formLogin;
   }
 
   // 退出登录记录生成器

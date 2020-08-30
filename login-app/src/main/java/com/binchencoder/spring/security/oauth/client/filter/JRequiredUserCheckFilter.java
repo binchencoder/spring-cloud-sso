@@ -30,7 +30,7 @@ public class JRequiredUserCheckFilter implements Filter {
       if (auth != null && auth.getPrincipal() instanceof JUserDetails) {
         String uid = request.getParameter("uid");
         if (uid != null && !uid.isEmpty()) {
-          if (!String.valueOf(((JUserDetails) auth.getPrincipal()).getUid()).equals(uid.trim())) {
+          if (!String.valueOf(((JUserDetails) auth.getPrincipal()).getUserID()).equals(uid.trim())) {
             throw new NotRequiredUserAccessDeniedException(
                 "An logined user not match required user");
           }
