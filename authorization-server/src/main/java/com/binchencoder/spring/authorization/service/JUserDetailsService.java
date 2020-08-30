@@ -15,7 +15,7 @@ public class JUserDetailsService implements UserDetailsService {
   @Override
   public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
     // TODO(chenbin) Load user from db
-    List<GrantedAuthority> grantAuths = new ArrayList<GrantedAuthority>();
+    List<GrantedAuthority> grantAuths = new ArrayList<>();
     grantAuths.add(new SimpleGrantedAuthority("ROLE_USER"));
     return User.withUsername("user1")
         .password("password")

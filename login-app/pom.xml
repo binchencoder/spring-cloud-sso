@@ -8,7 +8,7 @@
 		<artifactId>spring-security-oauth2-parent</artifactId>
 		<version>1.0.0.BUILD-SNAPSHOT</version>
 	</parent>
-	<artifactId>spring-security-oauth2-client-app</artifactId>
+	<artifactId>spring-security-oauth2-login-app</artifactId>
 
 	<dependencies>
 		<dependency>
@@ -52,6 +52,16 @@
 			<groupId>org.webjars</groupId>
 			<artifactId>jquery</artifactId>
 			<version>3.4.1</version>
+		</dependency>
+
+		<!-- Google Dependencies -->
+<!--		<dependency>-->
+<!--      <groupId>com.google.guava</groupId>-->
+<!--      <artifactId>guava</artifactId>-->
+<!--    </dependency>-->
+		<dependency>
+			<groupId>com.google.code.gson</groupId>
+			<artifactId>gson</artifactId>
 		</dependency>
 	</dependencies>
 

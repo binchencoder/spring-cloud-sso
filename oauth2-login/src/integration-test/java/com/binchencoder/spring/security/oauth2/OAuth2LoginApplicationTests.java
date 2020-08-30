@@ -202,7 +202,7 @@ public class OAuth2LoginApplicationTests {
 	public void requestAuthorizationCodeGrantWhenNoMatchingAuthorizationRequestThenDisplayLoginPageWithError() throws Exception {
 		HtmlPage page = this.webClient.getPage("/");
 		URL loginPageUrl = page.getBaseURL();
-		URL loginErrorPageUrl = new URL(loginPageUrl.toString() + "?error");
+		URL loginErrorPageUrl = new URL(loginPageUrl.toString() + "?handler");
 
 		ClientRegistration clientRegistration = this.clientRegistrationRepository.findByRegistrationId("google");
 
@@ -232,7 +232,7 @@ public class OAuth2LoginApplicationTests {
 	public void requestAuthorizationCodeGrantWhenInvalidStateParamThenDisplayLoginPageWithError() throws Exception {
 		HtmlPage page = this.webClient.getPage("/");
 		URL loginPageUrl = page.getBaseURL();
-		URL loginErrorPageUrl = new URL(loginPageUrl.toString() + "?error");
+		URL loginErrorPageUrl = new URL(loginPageUrl.toString() + "?handler");
 
 		ClientRegistration clientRegistration = this.clientRegistrationRepository.findByRegistrationId("google");
 

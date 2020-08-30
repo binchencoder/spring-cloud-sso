@@ -22,9 +22,9 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  * @author binchencoder
  */
 @SpringBootApplication
-public class OAuth2ClientApplication {
+public class OAuth2LoginApplication {
 
   public static void main(String[] args) {
-    SpringApplication.run(OAuth2ClientApplication.class, args);
+    SpringApplication.run(OAuth2LoginApplication.class, args);
   }
 }
