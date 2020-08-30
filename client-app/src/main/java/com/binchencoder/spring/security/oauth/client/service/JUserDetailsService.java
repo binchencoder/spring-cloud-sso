@@ -1,4 +1,4 @@
-package com.binchencoder.spring.security.oauth.authorization.service;
+package com.binchencoder.spring.security.oauth.client.service;
 
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;

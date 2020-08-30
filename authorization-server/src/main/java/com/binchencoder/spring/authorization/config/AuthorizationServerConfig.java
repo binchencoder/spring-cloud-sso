@@ -67,7 +67,7 @@ public class AuthorizationServerConfig {
     return new StaticKeyGeneratingKeyManager();
   }
 
-  @Bean
+//  @Bean
   public AuthenticationProvider authenticationProvider() {
     AuthenticationProvider authenticationProvider = new JUserNamePasswordAuthenticationProvider(
         userDetailsService());
@@ -75,7 +75,7 @@ public class AuthorizationServerConfig {
   }
 
   // @formatter:off
-  @Bean
+//  @Bean
   public UserDetailsService userDetailsService() {
     return new JUserDetailsService();
   }

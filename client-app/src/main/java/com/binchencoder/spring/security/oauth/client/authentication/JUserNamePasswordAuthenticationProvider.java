@@ -1,4 +1,4 @@
-package com.binchencoder.spring.security.oauth.authorization.authentication;
+package com.binchencoder.spring.security.oauth.client.authentication;
 
 import org.springframework.security.authentication.AccountExpiredException;
 import org.springframework.security.authentication.AuthenticationProvider;

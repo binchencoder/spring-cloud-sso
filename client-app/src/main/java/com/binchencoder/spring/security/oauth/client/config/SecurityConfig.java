@@ -13,10 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.binchencoder.spring.security.oauth.authorization.config;
+package com.binchencoder.spring.security.oauth.client.config;
 
-import com.binchencoder.spring.security.oauth.authorization.authentication.JUserNamePasswordAuthenticationProvider;
-import com.binchencoder.spring.security.oauth.authorization.service.JUserDetailsService;
+import com.binchencoder.spring.security.oauth.client.service.JUserDetailsService;
+import com.binchencoder.spring.security.oauth.client.authentication.JUserNamePasswordAuthenticationProvider;
 import java.util.ArrayList;
 import java.util.List;
 import org.springframework.context.annotation.Bean;
