@@ -144,7 +144,9 @@ public class OAuth2ClientSecurityConfig extends WebSecurityConfigurerAdapter {
         .and()
         .exceptionHandling() // 3. -> 安全异常处理 LogoutFilter 之后，确保所有登录异常纳入异常处理
         .authenticationEntryPoint(jAuthenticationEntryPoint)
-        .accessDeniedHandler(jAccessDeniedHandler).and().csrf()
+        .accessDeniedHandler(jAccessDeniedHandler)
+        .and()
+        .oauth2Client()
         .and()
         // 认证服务内部异常处理
         .addFilterBefore(getJAuthenticationServiceExceptionFilter(),
@@ -158,10 +160,7 @@ public class OAuth2ClientSecurityConfig extends WebSecurityConfigurerAdapter {
             getJLogoutRecordFilter().getClass())
         // 一键登录 --> 使可以被异常捕获
         .addFilterAfter(getJUidCidTokenAuthenticationFilter(sessionStrategies),
-            jUsernamePasswordAuthenticationFilter.getClass())
-        .oauth2Client()
-        .authorizationCodeGrant()
-        .accessTokenResponseClient(jAccessTokenResponseClient());
+            jUsernamePasswordAuthenticationFilter.getClass());
 
     http.csrf().disable(); // 关跨域保护
     http.headers().frameOptions().disable();

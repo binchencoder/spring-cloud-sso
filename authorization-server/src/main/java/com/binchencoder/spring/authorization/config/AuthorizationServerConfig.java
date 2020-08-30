@@ -15,15 +15,11 @@
  */
 package com.binchencoder.spring.authorization.config;
 
-import com.binchencoder.spring.authorization.authentication.JUserNamePasswordAuthenticationProvider;
-import com.binchencoder.spring.authorization.service.JUserDetailsService;
 import java.util.UUID;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
-import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.OAuth2AuthorizationServerConfiguration;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.keys.KeyManager;
 import org.springframework.security.crypto.keys.StaticKeyGeneratingKeyManager;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
@@ -67,17 +63,15 @@ public class AuthorizationServerConfig {
     return new StaticKeyGeneratingKeyManager();
   }
 
-  @Bean
-  public AuthenticationProvider authenticationProvider() {
-    AuthenticationProvider authenticationProvider = new JUserNamePasswordAuthenticationProvider(
-        userDetailsService());
-    return authenticationProvider;
-  }
-
-  // @formatter:off
-  @Bean
-  public UserDetailsService userDetailsService() {
-    return new JUserDetailsService();
-  }
-  // @formatter:on
+//  @Bean
+//  public AuthenticationProvider authenticationProvider() {
+//    AuthenticationProvider authenticationProvider = new JUserNamePasswordAuthenticationProvider(
+//        userDetailsService());
+//    return authenticationProvider;
+//  }
+//
+//  @Bean
+//  public UserDetailsService userDetailsService() {
+//    return new JUserDetailsService();
+//  }
 }

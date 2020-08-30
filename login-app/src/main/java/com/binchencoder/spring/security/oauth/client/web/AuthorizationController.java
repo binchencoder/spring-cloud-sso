@@ -15,6 +15,7 @@
  */
 package com.binchencoder.spring.security.oauth.client.web;
 
+import static org.springframework.security.oauth2.client.web.reactive.function.client.ServerOAuth2AuthorizedClientExchangeFilterFunction.clientRegistrationId;
 import static org.springframework.security.oauth2.client.web.reactive.function.client.ServletOAuth2AuthorizedClientExchangeFilterFunction.oauth2AuthorizedClient;
 
 import com.binchencoder.spring.security.oauth.client.exception.AnotherUserLoginedAccessDeniedException;
@@ -195,9 +196,8 @@ public class AuthorizationController {
   }
 
   @GetMapping(value = "/authorize", params = "grant_type=authorization_code")
-  public String authorization_code_grant(Model model,
-      @RegisteredOAuth2AuthorizedClient("messaging-client-auth-code") OAuth2AuthorizedClient authorizedClient) {
-    String[] messages = retrieveMessages(authorizedClient);
+  public String authorization_code_grant(Model model) {
+    String[] messages = retrieveMessages("messaging-client-auth-code");
     model.addAttribute("messages", messages);
     return "index";
   }
@@ -211,11 +211,20 @@ public class AuthorizationController {
   }
 
   @PostMapping(value = "/authorize", params = "grant_type=password")
-  public String password_grant(Model model,
-      @RegisteredOAuth2AuthorizedClient("messaging-client-password") OAuth2AuthorizedClient authorizedClient) {
-    String[] messages = retrieveMessages(authorizedClient);
+  public String password_grant(Model model) {
+    String[] messages = retrieveMessages("messaging-client-password");
     model.addAttribute("messages", messages);
     return "index";
+  }
+
+  private String[] retrieveMessages(String clientRegistrationId) {
+    return this.webClient
+        .get()
+        .uri(this.messagesBaseUri)
+        .attributes(clientRegistrationId(clientRegistrationId))
+        .retrieve()
+        .bodyToMono(String[].class)
+        .block();
   }
 
   private String[] retrieveMessages(OAuth2AuthorizedClient authorizedClient) {
