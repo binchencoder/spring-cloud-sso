@@ -15,9 +15,15 @@
  */
 package com.binchencoder.spring.security.oauth.authorization.config;
 
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Bean;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.config.annotation.web.configurers.oauth2.server.resource.OAuth2ResourceServerConfigurer;
+import org.springframework.security.oauth2.jwt.JwtDecoder;
+import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 
 /**
  * @author binchencoder
@@ -25,16 +31,27 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 @EnableWebSecurity
 public class ResourceServerConfig extends WebSecurityConfigurerAdapter {
 
-  // @formatter:off
-  @Override
-  protected void configure(HttpSecurity http) throws Exception {
-    http
-        .mvcMatcher("/messages/**")
-        .authorizeRequests()
-        .mvcMatchers("/messages/**").access("hasAuthority('SCOPE_message.read')")
-        .and()
-        .oauth2ResourceServer()
-        .jwt();
-  }
-  // @formatter:on
+	@Value("${spring.security.oauth2.resourceserver.jwt.jwk-set-uri}")
+	private String jwkSetUri;
+
+	@Override
+	protected void configure(HttpSecurity http) throws Exception {
+		// @formatter:off
+		http
+			.authorizeRequests((authorizeRequests) ->
+				authorizeRequests
+					.antMatchers(HttpMethod.GET, "/message/**")
+					.hasAuthority("SCOPE_message:read")
+					.antMatchers(HttpMethod.POST, "/message/**")
+					.hasAuthority("SCOPE_message:write")
+					.anyRequest().authenticated()
+			)
+			.oauth2ResourceServer(OAuth2ResourceServerConfigurer::jwt);
+		// @formatter:on
+	}
+
+	@Bean
+	JwtDecoder jwtDecoder() {
+		return NimbusJwtDecoder.withJwkSetUri(this.jwkSetUri).build();
+	}
 }
