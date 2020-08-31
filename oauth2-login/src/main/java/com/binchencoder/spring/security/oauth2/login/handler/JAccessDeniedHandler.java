@@ -1,4 +1,4 @@
-package com.binchencoder.spring.authorization.error;
+package com.binchencoder.spring.security.oauth2.login.handler;
 
 import java.io.IOException;
 import javax.servlet.ServletException;

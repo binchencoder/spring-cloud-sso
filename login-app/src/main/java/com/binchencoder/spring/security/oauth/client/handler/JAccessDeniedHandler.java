@@ -45,7 +45,7 @@ public class JAccessDeniedHandler implements AccessDeniedHandler {
     request.setAttribute(WebAttributes.ACCESS_DENIED_403, accessDeniedException);
     // 一键登录用户与当前用户不匹配处理
     if (accessDeniedException instanceof AnotherUserLoginedAccessDeniedException) {
-      // forward to error page.
+      // forward to handler page.
       request.getRequestDispatcher(requestMatcher.matches(request) ?
           Routes.OAUTH_DENIED_UNMATCHUSER_HTML : Routes.OAUTH_DENIED_UNMATCHUSER)
           .forward(request, response);

@@ -101,7 +101,7 @@ public class AuthorizationController {
         (AuthenticationException) request.getAttribute(WebAttributes.AUTHENTICATION_EXCEPTION);
     String errorMsg = getErrorMsg(exception);
     if (errorMsg != null) {
-      model.addAttribute("error", errorMsg);
+      model.addAttribute("handler", errorMsg);
     }
 
 //    return Routes.LOGIN_URL + display;
@@ -128,10 +128,10 @@ public class AuthorizationController {
         (AuthenticationException) request.getAttribute(WebAttributes.AUTHENTICATION_EXCEPTION);
     String errorMsg = getErrorMsg(exception);
     if (errorMsg != null) {
-      ret.put("error", errorMsg);
+      ret.put("handler", errorMsg);
     } else {
       LOGGER.warn("未捕获的授权异常", exception);
-      ret.put("error", "UnknownException");
+      ret.put("handler", "UnknownException");
     }
     return ret;
   }
@@ -153,7 +153,7 @@ public class AuthorizationController {
         authenticationFailureCountingService.isNeedCheckIdentifyCode(request, response));
     // NotRequiredUserAccessDeniedException exception = (NotRequiredUserAccessDeniedException)
     // request.getAttribute(WebAttributes.ACCESS_DENIED_403);
-    ret.put("error", "NotRequiredUser");
+    ret.put("handler", "NotRequiredUser");
     return ret;
   }
 
@@ -180,9 +180,9 @@ public class AuthorizationController {
 //      ret.put("token",
 //          tokenService.allocateToken((Serializable) current_user.get(ALIAS), 2 * 60 * 60));
 //    } catch (Exception e) {
-//      LOGGER.error("访问Token Service 异常", e);
+//      LOGGER.handler("访问Token Service 异常", e);
 //    }
-    ret.put("error", "UnmatchUser");
+    ret.put("handler", "UnmatchUser");
     return ret;
   }
 

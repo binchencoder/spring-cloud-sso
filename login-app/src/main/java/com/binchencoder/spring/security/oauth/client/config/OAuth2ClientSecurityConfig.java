@@ -134,7 +134,7 @@ public class OAuth2ClientSecurityConfig extends WebSecurityConfigurerAdapter {
         .and()
         .formLogin()
 //        .loginPage("/login")
-//        .failureUrl("/login-error")
+//        .failureUrl("/login-handler")
         .permitAll()
         .and()
         .oauth2Login()

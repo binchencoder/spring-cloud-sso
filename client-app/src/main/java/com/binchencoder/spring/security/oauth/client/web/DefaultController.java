@@ -40,7 +40,7 @@ public class DefaultController {
 		return "login";
 	}
 
-	@GetMapping("/login-error")
+	@GetMapping("/login-handler")
 	public String loginError(Model model) {
 		model.addAttribute("loginError", true);
 		return login();
