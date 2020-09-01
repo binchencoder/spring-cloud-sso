@@ -4,11 +4,11 @@ server:
 logging:
   level:
     root: INFO
-    com.binchencoder.spring.security: INFO
-    org.springframework.web: INFO
-    org.springframework.security: INFO
-    org.springframework.security.oauth2: INFO
-    org.springframework.boot.autoconfigure: DEBUG
+    com.binchencoder.oauth2: DEBUG
+    org.springframework.web: DEBUG
+    org.springframework.security: DEBUG
+    org.springframework.security.oauth2: DEBUG
+    org.springframework.boot.autoconfigure: INFO
 
 spring:
   thymeleaf:
