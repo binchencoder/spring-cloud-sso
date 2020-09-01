@@ -13,6 +13,9 @@ logging:
 spring:
   thymeleaf:
     cache: false
+  mvc:
+    log-request-details: true
+    log-resolved-exception: true
   security:
     oauth2:
       client:
